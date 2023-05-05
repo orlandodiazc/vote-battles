@@ -1,15 +1,16 @@
 import Input from "./Input";
 
-export default function InputList({ maxValue, values, setVote }) {
+export default function InputList({ maxValue, values, playerId, stageId }) {
   return (
-    <div className="space-x-1">
+    <div className="space-x-1 text-black">
       {values.map(({ id, value }) => (
         <Input
           key={id}
           id={id}
           voteValue={value}
-          setVote={setVote}
           maxValue={maxValue}
+          playerId={playerId}
+          stageId={stageId}
         />
       ))}
     </div>
