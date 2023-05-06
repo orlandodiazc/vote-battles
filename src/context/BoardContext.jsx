@@ -20,74 +20,54 @@ const boardReducer = (state, action) => {
           }),
         };
       });
-    case "SET_STAGE_TOTAL":
-      return state - 1;
+    case "SET_PLAYER_STAGE_TOTAL":
+      return state.map((player, idx) => {
+        if (idx !== payload.playerId) return player;
+        return {
+          ...player,
+          stages: player.stages.map((stage, idx) => {
+            if (idx !== payload.stageId) return stage;
+            return {
+              ...stage,
+              total: stage.inputList.reduce(
+                (acc, curr) => acc + Number(curr.value),
+                0
+              ),
+            };
+          }),
+        };
+      });
     case "SET_PLAYER_TOTAL":
-      return 0;
+      return state.map((player, idx) => {
+        if (idx !== payload.playerId) return player;
+        return {
+          ...player,
+          total: player.stages.reduce((acc, curr) => acc + curr.total, 0),
+        };
+      });
     default:
       return state;
   }
 };
 
+const currentStages = ["Incremental", "Random", "Libre 1", "Libre 2", "Deluxe"];
+const playerNames = ["Chuty", "Bnet"];
+
 function createInputList() {
   return [...new Array(9)].map((val, idx) => ({ id: idx, value: "" }));
 }
 
+function Stage(name, setup) {
+  return { name, setup, total: 0, inputList: createInputList() };
+}
+
+function Player(name, stages) {
+  return { name, stages, total: 0 };
+}
+
 const BoardContext = createContext();
-const initialValue = [
-  {
-    name: "Chuty",
-    total: 0,
-    stages: [
-      {
-        name: "Incremental",
-        total: 0,
-        setup: [6],
-        inputList: createInputList(),
-      },
-      { name: "Random", total: 0, setup: [6], inputList: createInputList() },
-      {
-        name: "Libre 1",
-        total: 0,
-        setup: [6],
-        inputList: createInputList(),
-      },
-      {
-        name: "Libre 2",
-        total: 0,
-        setup: [6],
-        inputList: createInputList(),
-      },
-      { name: "Deluxe", total: 0, setup: [6], inputList: createInputList() },
-    ],
-  },
-  {
-    name: "Bnet",
-    total: 0,
-    stages: [
-      {
-        name: "Incremental",
-        total: 0,
-        setup: [6],
-        inputList: createInputList(),
-      },
-      { name: "Random", total: 0, setup: [6], inputList: createInputList() },
-      {
-        name: "Libre 1",
-        total: 0,
-        setup: [6],
-        inputList: createInputList(),
-      },
-      {
-        name: "Libre 2",
-        total: 0,
-        setup: [6],
-        inputList: createInputList(),
-      },
-      { name: "Deluxe", total: 0, setup: [6], inputList: createInputList() },
-    ],
-  },
-];
+const stages = currentStages.map((stageName) => Stage(stageName, [6]));
+const initialValue = playerNames.map((name) => Player(name, stages));
 
 export const BoardContextProvider = (props) => {
   const [board, boardDispatch] = useReducer(boardReducer, initialValue);
@@ -95,6 +75,14 @@ export const BoardContextProvider = (props) => {
     boardDispatch({
       type: "SET_VOTE",
       payload: { playerId, stageId, inputId, value },
+    });
+    boardDispatch({
+      type: "SET_PLAYER_STAGE_TOTAL",
+      payload: { playerId, stageId },
+    });
+    boardDispatch({
+      type: "SET_PLAYER_TOTAL",
+      payload: { playerId },
     });
   }
 

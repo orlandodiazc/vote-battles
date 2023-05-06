@@ -3,20 +3,12 @@ import InputList from "./InputList";
 
 export function Player({ name, playerId, stageId }) {
   const board = useBoardState();
-  // const [values, setValue] = useState(
-  //   [...new Array(9)].map((val, idx) => ({ id: idx, value: "" }))
-  // );
-  // function setVote(id, newValue) {
-  //   setValue(
-  //     values.map((value) => {
-  //       if (value.id === id) return { id, value: newValue };
-  //       return value;
-  //     })
-  //   );
-  // }
-  // const playerTotal = values.reduce((acc, curr) => acc + Number(curr.value), 0);
+
   if (!board) return null;
-  const values = board[playerId].stages[stageId].inputList;
+  const stageInfo = board[playerId].stages[stageId];
+  const playerStageTotal = stageInfo.total;
+  const values = stageInfo.inputList;
+  console.log(board);
   return (
     <div className="flex gap-3">
       <span className="flex-1 flex items-center">{name}</span>
@@ -34,8 +26,8 @@ export function Player({ name, playerId, stageId }) {
         playerId={playerId}
         stageId={stageId}
       />
-      <span className="flex items-center bg-white w-8 rounded-sm justify-center">
-        {/* {playerTotal} */} h
+      <span className="flex items-center bg-white w-8 text-black rounded-sm justify-center">
+        {playerStageTotal === 0 ? "-" : playerStageTotal}
       </span>
     </div>
   );
