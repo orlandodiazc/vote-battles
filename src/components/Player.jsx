@@ -1,43 +1,54 @@
 import { useBoardState } from "@/context/BoardContext";
 import InputList from "./InputList";
 
-export function Player({ name, playerId, stageId, setup }) {
-  const board = useBoardState();
-
-  if (!board) return null;
-  const stageInfo = board[playerId].stages[stageId];
-  const playerStageTotal = stageInfo.total;
-  const values = stageInfo.inputList;
+export function Player({
+  playerId,
+  stageId,
+  elements,
+  onKeyDown,
+  focusableId,
+}) {
+  const { scores, settings } = useBoardState();
+  if (!scores || !settings) return null;
+  const name = settings.playersName[playerId];
+  const values = scores[playerId][stageId];
+  const stageTotal = values.reduce(
+    (acc, input) => acc + Number(input.value),
+    0
+  );
+  const setup = settings.stages[stageId].setup;
 
   return (
-    <div className="flex gap-3">
-      <span className="flex-1 flex items-center">{name}</span>
-      {setup.map((length, idx) => {
+    <tr>
+      <td className="pe-3 font-medium">{name}</td>
+      {setup.map(({ length }, idx) => {
+        const maxValue = setup.length - 1 === idx ? 2 : 4;
         const bot = setup[idx - 1] ?? 0;
         const top = setup[idx] + bot;
-
         return (
           <InputList
+            onKeyDown={onKeyDown}
+            focusableId={focusableId}
+            elements={elements}
             key={idx}
             length={length}
-            maxValue={4}
+            maxValue={maxValue}
             values={values.slice(bot, top)}
             playerId={playerId}
             stageId={stageId}
+            isLastList={setup.length - 1 === idx}
           />
         );
       })}
-      <InputList
-        key={setup.length}
-        length={3}
-        maxValue={2}
-        values={values.slice(-3)}
-        playerId={playerId}
-        stageId={stageId}
-      />
-      <span className="flex items-center bg-white w-8 text-black rounded-sm justify-center">
-        {playerStageTotal === 0 ? "-" : playerStageTotal}
-      </span>
-    </div>
+
+      <td className="p-1">
+        <input
+          className="w-8 p-1 rounded-sm text-center bg-white text-black font-bold"
+          type="text"
+          disabled
+          value={stageTotal}
+        />
+      </td>
+    </tr>
   );
 }

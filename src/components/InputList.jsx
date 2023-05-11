@@ -1,22 +1,32 @@
-import useInputFocus from "@/hooks/useInputFocus";
 import Input from "./Input";
 
-export default function InputList({ maxValue, values, playerId, stageId }) {
-  const [focus, setFocus] = useInputFocus(9);
+export default function InputList({
+  maxValue,
+  values,
+  playerId,
+  stageId,
+  isLastList,
+  elements,
+  onKeyDown,
+  focusableId,
+}) {
   return (
-    <div className="space-x-1 text-black">
+    <>
       {values.map(({ id, value }, idx) => (
         <Input
+          onKeyDown={onKeyDown}
+          focusableId={focusableId}
+          elements={elements}
           key={id}
-          focus={focus.id === id && focus.playerId === playerId}
-          setFocus={setFocus}
           id={id}
           voteValue={value}
           maxValue={maxValue}
           playerId={playerId}
           stageId={stageId}
+          isLastInput={values.length - 1 === idx}
+          isLastList={isLastList}
         />
       ))}
-    </div>
+    </>
   );
 }
